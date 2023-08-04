@@ -1,6 +1,5 @@
 import cv2
-#from tracker import *
-from tracker import EuclideanDistTracker
+from tracker import EuclideanDistTracker, Filter
 
 video_path = '/home/vini/Documents/Projects/Tracking/object_tracking/highway.mp4'
 
@@ -8,6 +7,11 @@ video_path = '/home/vini/Documents/Projects/Tracking/object_tracking/highway.mp4
 cap = cv2.VideoCapture(video_path)
 
 tracker = EuclideanDistTracker()
+filter = Filter()
+
+
+
+
 
 # Check if the video capture object is created successfully
 if not cap.isOpened():
@@ -41,7 +45,10 @@ while True:
 
     # 2.Object Tracktion
     objects_bbs_ids = tracker.update(detections)
-    print(objects_bbs_ids)
+    objects_bbs_ids = filter.filter_object(objects_bbs_ids)
+    
+        
+    #print(objects_bbs_ids)
 
     cv2.imshow("Frame", frame)
     #cv2.imshow("Mask", mask)
@@ -52,3 +59,5 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+

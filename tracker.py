@@ -49,4 +49,57 @@ class EuclideanDistTracker:
 
         return objects_bbs_ids
 
+class Filter:
+    def __init__(self) -> None:
+        self.buf = []
+        self.validated = []
 
+    def count_trues_until(self, spot):
+        count = 0
+        for i in range(spot):
+            if self.validated[i] is True:
+                count += 1
+        return count
+
+    def compare_and_subtract(self, list1, list2):
+        # Create a new list to store the results
+        result_list = []
+
+        # Determine the length of the shorter list
+        min_length = min(len(list1), len(list2))
+
+        # Iterate through the shorter list and compare elements
+        for i in range(min_length):
+            if list1[i] == list2[i] and (list2[i] >= 0):
+                result_list.append(list1[i] - 1)
+            else:
+                result_list.append(list2[i])
+
+        # Append the remaining elements from the longer list
+        if len(list1) > min_length:
+            result_list.extend(list1[min_length:])
+        elif len(list2) > min_length:
+            result_list.extend(list2[min_length:])
+
+        return result_list
+
+    def filter_object(self, objects, limit=10):
+        temp_buf = self.buf.copy()
+        resulting_objects = []
+        for obj in objects:
+            if len(self.buf) == obj[-1]:
+                self.buf.append(1)
+                self.validated.append(False)
+            elif len(self.buf) > obj[-1] and self.buf[obj[-1]] < limit:
+                self.buf[obj[-1]] += 1
+            elif self.buf[obj[-1]] == limit and self.validated[obj[-1]] == False:
+                self.validated[obj[-1]] = True
+                print(f"Element {obj[-1]} validated!")
+            if self.buf[obj[-1]] > -1 and self.validated[obj[-1]] == True:
+                temp = obj
+                temp[-1] = self.count_trues_until(obj[-1])
+                resulting_objects.append(temp)
+                #print(f"Object {obj} is ID: {self.count_trues_until(obj[-1])}")
+        self.buf = self.compare_and_subtract(temp_buf, self.buf)
+        print(resulting_objects)
+        return resulting_objects
